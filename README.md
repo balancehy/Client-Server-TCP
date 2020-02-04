@@ -13,7 +13,7 @@ Open one or more terminal for clients, run:
 ```
 ./client hostname port
 ```
-hostname is the name of local machine, it can be found by run command
+hostname is the name of local machine, port is same as server port. Hostname can be found by run command
 ```
 $ hostname
 ```
