@@ -39,7 +39,8 @@ int main(int argc, char *argv[])
 		fprintf(stderr,"Usage: %s port\n", argv[0]);// error not affect errno
 		exit(1);
 	}
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);// create socket, AF_INET:internet domain, SOCK_STREAM use TCP, zero for third arg allow OS to choose proper protocols.
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);/* create socket, AF_INET:internet domain, 
+	SOCK_STREAM use TCP, zero for third arg allow OS to choose proper protocols.*/
 	if (sockfd < 0) 
 		error("ERROR opening socket");
 	memset((char *)&server_addr, 0, sizeof(server_addr));
@@ -48,14 +49,16 @@ int main(int argc, char *argv[])
 	server_addr.sin_addr.s_addr = INADDR_ANY; //the address of host machine
 	server_addr.sin_port = htons(portnum);
 	/* bind ask the kernel to associate the server’s socket address with a socket descriptor 
-	server_addr should be casted to struct sockaddr. There are other type of socket other than internet socket. It is a C-style polymorphism.
+	server_addr should be casted to struct sockaddr. There are other type of socket 
+	other than internet socket. It is a C-style polymorphism.
 	*/
 	if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) 
 		error("ERROR binding socket");
 	/* 
 	Socket descriptor from socket() is an active socket that should be on the client end.
 	listen() function tell the kernel that it will be used by a server.
-	Backlog, the number of outstanding connection requests that the kernel should queue up before starting to refuse requests*/
+	Backlog, the number of outstanding connection requests that the kernel 
+	should queue up before starting to refuse requests*/
 	listen(sockfd, BACKLOG);
 	clilen = sizeof(client_addr);
 	int ctr = 0; // number of forked process, also indicate number of client requests
@@ -63,7 +66,8 @@ int main(int argc, char *argv[])
 	while(1){
 		newsockfd = accept(sockfd, 
 						 (struct sockaddr *) &client_addr, 
-						 &clilen); // wait for new client connection request. Note that third arg should be a pointer
+						 &clilen); /* wait for new client connection request. 
+						Note that third arg should be a pointer*/
 		if (newsockfd < 0) 
 			error("ERROR accepting socket");
 			
@@ -73,7 +77,9 @@ int main(int argc, char *argv[])
 			ctr++;
 		}
 		/* parent process only fork child process. Must place after new socket connection accepted(triggered by client request). 
-		If the other way around child process not copy newsockfd, it can complete with its parent process to accept the socket. It child gets it, request gets done. But if parent gets it, it won't do the communication, leading to fail request.
+		If the other way around child process not copy newsockfd, it can complete with 
+		its parent process to accept the socket. It child gets it, request gets done. 
+		But if parent gets it, it won't do the communication, leading to fail request.
 		*/
 		if(pid == 0){ // Child processes do communication, then exit successfully
 //			printf("Child, Loop num: %d, pid: %d\n", ctr++, pid); // debug
@@ -82,8 +88,11 @@ int main(int argc, char *argv[])
 			close(sockfd);
 			exit(0); // terminate after use, or processes are too many
 		}else{ 
-		/* pid>0 parent process doesn't deal with actual communication. Since it creates a child process and copy its status, it bahaves as if it does.
-		Why parent process cannot deal with communication? When both parent and child process are in communication, another client request will have to wait for either of them to finish, since no process can accept new socket.
+		/* pid>0 parent process doesn't deal with actual communication. 
+		Since it creates a child process and copy its status, it bahaves as if it does.
+		Why parent process cannot deal with communication? When both parent and child process 
+		are in communication, another client request will have to wait for either of them to finish, 
+		since no process can accept new socket.
 		*/
 //			printf("Parent, Loop num: %d, pid: %d\n", ctr++, pid); // debug
 			close(newsockfd);
